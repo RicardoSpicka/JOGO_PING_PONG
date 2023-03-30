@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        *{
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <title>Jogo Ping-Pong</title>
+</head>
+<body>
+    <canvas></canvas>
+    <script>
+        const canvasEl = document.querySelector("canvas"), 
+              canvasCtx = canvasEl.getContext("2d")
+        const lineWith = 15
+        const gap = 20
+
+        const mouse = {x:0, y:0}
+        const barraEspaco = 0
+
+       //criando o OBJETO CAMPO com os atributos
+        const campo = {
+            w: window.innerWidth,
+            h: window.innerHeight,
+            draw: function() {
+                canvasCtx.fillStyle = "#286047"
+                canvasCtx.fillRect(0,0, this.w, this.h)
+            },
+        }
+
+        //criando o OBJETO LINHA com os atributos
+        const linha = {
+            w: 15,
+            h: campo.h,
+            draw: function() {
+                canvasCtx.fillStyle = "#ffffff" 
+                canvasCtx.fillRect(campo.w / 2 - this.w / 2 , 0 , this.w , this.h)
+            },
+        }
+
+        //criando o OBJETO RAQUETE ESQUERDA com os atributos
+        const raqueteEsq = {
+            x: gap,
+            y: 0,
+            w: 15,
+            h: 170,
+            _mover: function() {
+                this.y = mouse.y - (this.h / 2)
+            },
+
+            draw: function() {
+                canvasCtx.fillStyle = "#ffffff" 
+                canvasCtx.fillRect(this.x , this.y , this.w , this.h)
+
+                this._mover()
+            },     
+        }
+
+        //criando o OBJETO RAQUETE DIREITA com os atributos
+        const raqueteDir = {
+            x: campo.w - linha.w - gap,
+            y: 350,
+            w: linha.w,
+            h: 170,
+            speed: 5,
+            _mover: function() {
+                if(this.y + this.h / 2 < bolinha.y + bolinha.r){
+                     this.y += this.speed
+                } else {
+                    this.y -= this.speed
+                }
+            },
+            _velocidadeRaquete: function(){
+                this.speed +=2
+            },
+            draw: function() {
+                canvasCtx.fillStyle = "#ffffff" 
+                canvasCtx.fillRect(this.x , this.y , this.w , this.h)
+                this._mover()
+            },
+        }
+
+        //criando o OBJETO PLACAR com os atributos
+        const placar = {
+            human: 0,
+            computer: 0,            
+            pontuarHumano: function(){
+                this.human++
+            },
+            pontuarComputador: function(){
+                this.computer++
+            },
+
+            draw: function() {
+                canvasCtx.font = "bold 72px Arial"
+                canvasCtx.textAlign = "center"
+                canvasCtx.textBaseline = "top"
+                canvasCtx.fillStyle = "#01341D"
+                canvasCtx.fillText(this.human, campo.w / 4 , 50 )
+                canvasCtx.fillText(this.computer, campo.w / 4 * 3, 50 )
+            },
+        }
+
+        //criando o OBJETO BOLINHA com os atributos
+        const bolinha = {
+            x: campo.w / 2,
+            y: campo.h / 2,
+            r: 20,
+            speed: 5,
+            direcaoY: 1,
+            direcaoX: 1,
+            _calcPosicao: function(){
+
+                if (this.x > campo.w - this.r - raqueteDir.w - gap){
+                    if ( 
+                        (this.y + this.r > raqueteDir.y)  && 
+                        (this.y - this.r < raqueteDir.y + raqueteDir.h ) 
+                       ) {
+                        this._reverterX()
+                    } else {
+                        placar.pontuarHumano()
+                        this._feitoPonto()
+                    }
+                }
+
+                if (this.x < this.r + raqueteEsq.w + gap){
+                    if(
+                        (this.y + this.r > raqueteEsq.y) &&
+                        (this.y - this.r < raqueteEsq.y + raqueteEsq.h)
+                      ) {
+                        this._reverterX()
+                    } else {
+                        placar.pontuarComputador()
+                        this._feitoPonto()
+                    }
+                }
+
+                if (  (this.y - this.r < 0 && this.direcaoY < 0) ||   
+                     (this.y > campo.h - this.r && this.direcaoY > 0)) {
+                    this._reverterY()
+                }
+            },
+
+            _reverterX: function(){
+                this.direcaoX = this.direcaoX *= -1
+            },
+
+            _reverterY: function(){
+                this.direcaoY = this.direcaoY *= -1
+            },
+
+            _velocidade: function(){
+                this.speed += 0.7
+            },
+
+            _feitoPonto: function(){
+                this.x = campo.w / 2
+                this.y = campo.h / 2    
+                this._velocidade()   
+                raqueteDir._velocidadeRaquete()        
+            },
+
+            _mover: function() {
+                this.x += this.direcaoX * this.speed
+                this.y += this.direcaoY * this.speed
+            },        
+ 
+            draw: function() {
+                canvasCtx.fillStyle = "#ffffff" 
+                canvasCtx.beginPath()
+                canvasCtx.arc(this.x, this.y, this.r, 0, 2.0 * Math.PI, false)
+                canvasCtx.fill() 
+                this._calcPosicao()
+                this._mover()
+            },           
+        }
+
+        function setup(){
+            canvasEl.width = canvasCtx.width = campo.w
+            canvasEl.height = canvasCtx.height = campo.h
+        }
+
+        function draw(){
+            campo.draw()
+            linha.draw()
+            raqueteEsq.draw()
+            raqueteDir.draw()
+            placar.draw()
+            bolinha.draw()
+            canvasEl.addEventListener('keydown', (e) => {
+                    alert("asgargwer")
+                    var name = e.key
+                    var code = e.code
+                    alert(`${name} --- ${code}`)
+            },false)
+        }
+
+        window.animateFrame = (function () {
+            return  (
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                return window.setTimeout(callback, 1000 / 60)
+                }
+            )
+        })()
+
+        function main() {
+        animateFrame(main)
+        draw()
+        }
+
+        setup()
+        main()
+
+        canvasEl.addEventListener("mousemove", function(e) {
+            mouse.x = e.pageX
+            mouse.y = e.pageY
+        }) 
+    </script>
+</body>
+</html>
