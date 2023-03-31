@@ -10,11 +10,13 @@
             margin: 0;
             padding: 0;
         }
+
     </style>
     <title>Jogo Ping-Pong</title>
 </head>
 <body>
-    <canvas></canvas>
+        <canvas></canvas>
+    
     <script>
         const canvasEl = document.querySelector("canvas"), 
               canvasCtx = canvasEl.getContext("2d")
@@ -23,6 +25,12 @@
 
         const mouse = {x:0, y:0}
         const barraEspaco = 0
+        const teclado =  document.querySelector("body")
+
+        var inicia = false
+        var aletorio = 1
+
+        
 
        //criando o OBJETO CAMPO com os atributos
         const campo = {
@@ -33,6 +41,8 @@
                 canvasCtx.fillRect(0,0, this.w, this.h)
             },
         }
+
+        campo.draw()
 
         //criando o OBJETO LINHA com os atributos
         const linha = {
@@ -57,7 +67,6 @@
             draw: function() {
                 canvasCtx.fillStyle = "#ffffff" 
                 canvasCtx.fillRect(this.x , this.y , this.w , this.h)
-
                 this._mover()
             },     
         }
@@ -67,17 +76,17 @@
             x: campo.w - linha.w - gap,
             y: 350,
             w: linha.w,
-            h: 170,
+            h: 170, 
             speed: 5,
             _mover: function() {
-                if(this.y + this.h / 2 < bolinha.y + bolinha.r){
-                     this.y += this.speed
-                } else {
-                    this.y -= this.speed
-                }
+                    if(this.y + this.h / 2 < bolinha.y + bolinha.r){
+                        this.y += this.speed
+                    } else {
+                        this.y -= this.speed
+                    } 
             },
             _velocidadeRaquete: function(){
-                this.speed +=2
+                this.speed += 0.7 * aletorio 
             },
             draw: function() {
                 canvasCtx.fillStyle = "#ffffff" 
@@ -112,10 +121,10 @@
             x: campo.w / 2,
             y: campo.h / 2,
             r: 20,
-            speed: 5,
+            speed: 8,
             direcaoY: 1,
             direcaoX: 1,
-            _calcPosicao: function(){
+            _calcPosicao: function(){ 
 
                 if (this.x > campo.w - this.r - raqueteDir.w - gap){
                     if ( 
@@ -163,12 +172,17 @@
                 this.x = campo.w / 2
                 this.y = campo.h / 2    
                 this._velocidade()   
-                raqueteDir._velocidadeRaquete()        
+                this._mover()   
+                inicia = false    
+                aletorio = (Math.random()) 
+                raqueteDir._velocidadeRaquete() 
             },
 
             _mover: function() {
+                if (inicia == true) {
                 this.x += this.direcaoX * this.speed
                 this.y += this.direcaoY * this.speed
+                }
             },        
  
             draw: function() {
@@ -186,20 +200,14 @@
             canvasEl.height = canvasCtx.height = campo.h
         }
 
-        function draw(){
+            function draw(){
             campo.draw()
             linha.draw()
             raqueteEsq.draw()
             raqueteDir.draw()
             placar.draw()
             bolinha.draw()
-            canvasEl.addEventListener('keydown', (e) => {
-                    alert("asgargwer")
-                    var name = e.key
-                    var code = e.code
-                    alert(`${name} --- ${code}`)
-            },false)
-        }
+        } 
 
         window.animateFrame = (function () {
             return  (
@@ -226,6 +234,13 @@
             mouse.x = e.pageX
             mouse.y = e.pageY
         }) 
+
+        teclado.addEventListener("keydown", function logKey(e){
+            if(e.code == "Space")  {
+                inicia = true
+            }            
+        })
+         
     </script>
 </body>
 </html>
